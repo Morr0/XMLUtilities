@@ -4,11 +4,12 @@ import archavexm.util.xml.document.XMLAttribute;
 import archavexm.util.xml.document.XMLDocument;
 import archavexm.util.xml.document.XMLElement;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * Responsible for writing XMLDocument into an xml file.
+ * Responsible for writing XMLDocument into an xml file on disk.
  * */
 public class XMLWriter {
     /**
@@ -42,8 +43,11 @@ public class XMLWriter {
 
                 // Checks if the element has elements
                 // If does not it will add the element end tag for the one line element
-                if (root.hasElements())
+                if (root.hasElements()){
                     content.append(XMLTokens.ELEMENT_END);
+                    if (root.hasValue())
+                        content.append(root.getValue());
+                }
                 else {
                     content.append(XMLTokens.SPACE);
                     content.append(XMLTokens.ELEMENT_ONE_LINE_END);
@@ -60,9 +64,12 @@ public class XMLWriter {
         }
 
         // Writes the document to the file
-        try (FileWriter writer = new FileWriter(document.getFilePath())){
-            writer.write(content.toString());
-        }
+        if (new File(document.getFilePath()).exists()){
+            try (FileWriter writer = new FileWriter(document.getFilePath())){
+                writer.write(content.toString());
+            }
+        } else
+            throw new IOException("The file provided in the document object does not exist.");
     }
 
     // This method will loop through every element and attribute in the xml document
@@ -80,20 +87,24 @@ public class XMLWriter {
                     content.append(getAttribute(attribute.getName(), attribute.getValue()));
             }
 
-            if (element.hasElements())
+            if (element.hasElements() || element.hasValue())
                 content.append(XMLTokens.ELEMENT_END);
             else {
+                if (element.hasValue()){
+                    content.append(element.getValue());
+                }
                 content.append(XMLTokens.SPACE);
                 content.append(XMLTokens.ELEMENT_ONE_LINE_END);
             }
 
             // Same functionality as the save() method
-            if (element.hasElements()){
+            if (element.hasElements())
                 for (XMLElement child: element.getElements())
                     content.append(getElement(child));
 
+            // Adds the end tag
+            if (element.hasElements() || element.hasValue())
                 content.append(getElementEnding(element.getName()));
-            }
         }
 
         return content.toString();

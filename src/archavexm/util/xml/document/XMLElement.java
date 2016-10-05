@@ -2,6 +2,10 @@ package archavexm.util.xml.document;
 
 import java.util.LinkedList;
 
+/**
+ * This class encapsulates an element with all of it's child elements, attributes and value. Should be used within the XMLDocument.
+ * If you try to add value to the element and it has child elements it will not add the value.
+ * */
 public class XMLElement extends XMLNode {
     private LinkedList<XMLElement> elements = new LinkedList<>();
     private LinkedList<XMLAttribute> attributes = new LinkedList<>();
@@ -14,10 +18,36 @@ public class XMLElement extends XMLNode {
         this(name, new LinkedList<>(), attributes);
     }
 
+    public XMLElement(String name, String value){
+        super(name, value);
+    }
+
+    public XMLElement(String name, String value, LinkedList<XMLAttribute> attributes){
+        super(name, value);
+        this.attributes = attributes;
+    }
+
     public XMLElement(String name, LinkedList<XMLElement> elements, LinkedList<XMLAttribute> attributes){
-        super(name);
+        super(name, null);
         this.elements = elements;
         this.attributes = attributes;
+    }
+
+    @Override
+    /**
+     * If the element does not have any child elements it will return true if the element has a value otherwise will return false.
+     * */
+    public boolean hasValue(){
+        return elements.isEmpty() && super.hasValue()? true: false;
+    }
+
+    @Override
+    /**
+     * Sets the value of the element if it does not have any child elements
+     * */
+    public void setValue(String value){
+        if (elements.isEmpty())
+            super.setValue(value);
     }
 
     public boolean hasElements(){

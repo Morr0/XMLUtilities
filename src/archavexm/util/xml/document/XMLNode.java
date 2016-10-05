@@ -1,10 +1,13 @@
 package archavexm.util.xml.document;
 
-public abstract class XMLNode {
-    private String name;
+// Should not touch the class
+abstract class XMLNode {
+    protected String name;
+    protected String value;
 
-    public XMLNode(String name){
+    public XMLNode(String name, String value){
         this.name = name;
+        this.value = value;
     }
 
     public String getName(){
@@ -18,5 +21,17 @@ public abstract class XMLNode {
     @Override
     public String toString(){
         return name;
+    }
+
+    public boolean hasValue(){
+        return value.isEmpty() || value == null? false: true;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

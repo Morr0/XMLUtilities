@@ -77,7 +77,8 @@ public class XMLReader {
                 // Instance of the matcher.group()
                 String string = matcher.group();
                 String name = getName(string, false);
-                if (name.isEmpty())
+
+                if (string.isEmpty() || name.isEmpty())
                     continue;
 
                 if (string.contains(XMLTokens.ELEMENT_BEGINNING_START)){
@@ -93,17 +94,18 @@ public class XMLReader {
                         if (string.contains(XMLTokens.ATTRIBUTE_BEGINNING))
                             document.getRoot().setAttributes(getAttributes(string));
 
+                        if (string.contains(XMLTokens.ELEMENT_END))
+                            document.getRoot().setValue(getValue(content.substring(content.indexOf(string) + string.length() - 2), false));
+
                         root = false;
                     } else {
                         // If not root element
-                        if (string.endsWith(XMLTokens.ELEMENT_ONE_LINE_END))
+                        if (string.trim().endsWith(XMLTokens.ELEMENT_ONE_LINE_END))
                             document.getRoot().addElement(new XMLElement(getName(string, false), getAttributes(string)));
-                        else if (string.endsWith(XMLTokens.ELEMENT_END)){
-                            if (content.contains(XMLTokens.ELEMENT_ENDING_START + name + XMLTokens.ELEMENT_END))
-                                document.getRoot().addElement(getElement(content, string, name, false, true));
-                            else
-                                throw new IncorrectXMLException("The element " + name + " has no ending tag.");
-                        }
+                        else if (string.endsWith(XMLTokens.ELEMENT_END) && content.contains(XMLTokens.ELEMENT_ENDING_START + name + XMLTokens.ELEMENT_END))
+                            document.getRoot().addElement(getElement(content, string, name, false, true));
+                        else
+                            throw new IncorrectXMLException("The element " + name + " has no ending tag.");
                     }
                 }
             }
@@ -144,16 +146,18 @@ public class XMLReader {
         else if (elementString.trim().endsWith(XMLTokens.ELEMENT_ONE_LINE_END))
             oneLine = true;
 
-        // Builds the string that contains this element and removes the elementContents's content in the content string
-        String elementContents = content.substring(content.indexOf(elementString),
-                (oneLine? content.indexOf(elementString) - 1: content.indexOf(endOfElement) + (endOfElement.length() - 1)));
         if (fromLoad)
-            content = content.substring(content.indexOf(elementContents));
+            content = content.substring(content.indexOf(elementString));
+        // Builds the string that contains this element and removes the elementContents's content in the content string
+        String elementContents = content.substring(0, (oneLine? content.indexOf(endOfElement) - (endOfElement.length() - 2): content.indexOf(endOfElement) + (endOfElement.length())));
+        //if (fromLoad)
+           //content = content.substring(content.indexOf(elementContents));
 
         // Returns the element with it's attributes if it only contains attributes or will scan the entire elements inside the element's string
         if (oneLine)
             return new XMLElement(name, (elementContents.contains("=")? getAttributes(elementString): new LinkedList<>()));
         else {
+            // The extra variable is for when there is no child elements and the element might have a value so if it has it will be stored in extra
             LinkedList<XMLElement> elements = new LinkedList<>();
             Pattern pattern = Pattern.compile("<.+?(>)");
             Matcher matcher = pattern.matcher(content);
@@ -163,13 +167,15 @@ public class XMLReader {
                     elements.add(getElement(elementContents, string, getName(string, false), (string.contains(XMLTokens.ELEMENT_ONE_LINE_END)), false));
                 }
             }
-            return new XMLElement(name, elements, (elementContents.contains("=")? getAttributes(elementString): new LinkedList<>()));
+
+            return new XMLElement(name, getValue(elementContents.substring(elementContents.indexOf(XMLTokens.ELEMENT_END) + 1), false)
+                    , (elementContents.contains("=")? getAttributes(elementString): new LinkedList<>()));
         }
     }
 
     // Makes the attribute object to be added into the element
     private static XMLAttribute getAttribute(String string){
-        return new XMLAttribute(getName(string, true), getValue(string, true));
+        return new XMLAttribute(getName(string, true), getValue(string, false));
     }
 
     // Uses regular expressions to loop through the element looking for attribute string and once it finds string it will add an attribute to the list
@@ -193,11 +199,18 @@ public class XMLReader {
             return string.substring(string.indexOf("<") + 1, (string.contains(XMLTokens.SPACE)? string.indexOf(" "): (string.contains("/")? string.indexOf("/"): string.indexOf(">"))));
     }
 
-    // Returns the value of an attribute if the boolean is true or if false will return the value of the provided element string
+    // Returns the value of an attribute
     private static String getValue(String node, boolean attribute){
         if (attribute)
             return node.substring(node.indexOf("=") + 1, node.indexOf(node.length() - 1));
-        else
-            return null;
+
+        StringBuilder value = new StringBuilder();
+        for (char c: node.toCharArray()){
+            if (c != '<')
+                value.append(c);
+            else
+                break;
+        }
+        return value.toString();
     }
 }
