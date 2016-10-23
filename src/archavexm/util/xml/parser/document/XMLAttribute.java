@@ -1,4 +1,4 @@
-package archavexm.util.xml.document;
+package archavexm.util.xml.parser.document;
 
 /**
  * This class encapsulates an xml attribute. This should be used within XMLElement.

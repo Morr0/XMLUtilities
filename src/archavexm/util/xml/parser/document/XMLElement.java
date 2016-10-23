@@ -1,4 +1,4 @@
-package archavexm.util.xml.document;
+package archavexm.util.xml.parser.document;
 
 import java.util.LinkedList;
 

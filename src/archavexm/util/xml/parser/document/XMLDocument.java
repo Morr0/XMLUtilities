@@ -1,4 +1,4 @@
-package archavexm.util.xml.document;
+package archavexm.util.xml.parser.document;
 
 // All the IElements methods work on the root element
 // Should have a root element or it will not parse

@@ -1,4 +1,4 @@
-package archavexm.util.xml.document;
+package archavexm.util.xml.parser.document;
 
 // Should not touch the class
 abstract class XMLNode {

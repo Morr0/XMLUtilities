@@ -1,9 +1,9 @@
 package archavexm.util.xml.parser;
 
-import archavexm.util.xml.document.XMLAttribute;
-import archavexm.util.xml.document.XMLDeclaration;
-import archavexm.util.xml.document.XMLDocument;
-import archavexm.util.xml.document.XMLElement;
+import archavexm.util.xml.parser.document.XMLAttribute;
+import archavexm.util.xml.parser.document.XMLDeclaration;
+import archavexm.util.xml.parser.document.XMLDocument;
+import archavexm.util.xml.parser.document.XMLElement;
 
 import java.io.File;
 import java.io.IOException;

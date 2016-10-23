@@ -1,4 +1,4 @@
-package archavexm.util.xml.document;
+package archavexm.util.xml.parser.document;
 
 import archavexm.util.xml.parser.XMLTokens;
 
