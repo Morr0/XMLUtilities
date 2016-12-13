@@ -113,11 +113,6 @@ public class XMLReader {
         return document;
     }
 
-    // TODO implement this method
-    public static boolean isCorrectDocument(String filePath){
-        return true;
-    }
-
     // Gets the XMLDeclaration instance from the string passed
     private static XMLDeclaration getDeclaration(String declaration){
         String encoding = "8";
