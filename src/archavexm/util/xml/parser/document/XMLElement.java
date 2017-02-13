@@ -1,36 +1,23 @@
 package archavexm.util.xml.parser.document;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
- * This class encapsulates an element with all of it's child elements, attributes and value. Should be used within the XMLDocument.
- * If you try to add value to the element and it has child elements it will not add the value.
+ * This class encapsulates an element with all of it's child elements, attributes and value.
  * */
 public class XMLElement extends XMLNode {
-    private LinkedList<XMLElement> elements = new LinkedList<>();
-    private LinkedList<XMLAttribute> attributes = new LinkedList<>();
+    private ArrayList<XMLElement> elements;
+    private ArrayList<XMLAttribute> attributes;
 
     public XMLElement(String name){
-        this(name, new LinkedList<>(), new LinkedList<>());
-    }
-
-    public XMLElement(String name, LinkedList<XMLAttribute> attributes){
-        this(name, new LinkedList<>(), attributes);
+        this(name, "");
     }
 
     public XMLElement(String name, String value){
         super(name, value);
-    }
 
-    public XMLElement(String name, String value, LinkedList<XMLAttribute> attributes){
-        super(name, value);
-        this.attributes = attributes;
-    }
-
-    public XMLElement(String name, LinkedList<XMLElement> elements, LinkedList<XMLAttribute> attributes){
-        super(name, null);
-        this.elements = elements;
-        this.attributes = attributes;
+        elements = new ArrayList<>();
+        attributes = new ArrayList<>();
     }
 
     @Override
@@ -64,7 +51,7 @@ public class XMLElement extends XMLNode {
     }
 
     public XMLElement getFirstElement(){
-        return elements.getFirst();
+        return elements.get(0);
     }
 
     public XMLElement getFirstElement(String name) {
@@ -76,16 +63,13 @@ public class XMLElement extends XMLNode {
         return element;
     }
 
-    public XMLElement getLastElement(){
-        return elements.getLast();
-    }
 
-    public LinkedList<XMLElement> getElements() {
+    public ArrayList<XMLElement> getElements() {
         return elements;
     }
 
-    public LinkedList<XMLElement> getElements(String name) {
-        LinkedList elements = new LinkedList();
+    public ArrayList<XMLElement> getElements(String name) {
+        ArrayList elements = new ArrayList();
         for(XMLElement element: this.elements)
             if (element.getName().equals(name))
                 elements.add(element);
@@ -106,7 +90,7 @@ public class XMLElement extends XMLNode {
         return number;
     }
 
-    public void setElements(LinkedList<XMLElement> elements) {
+    public void setElements(ArrayList<XMLElement> elements) {
         this.elements = elements;
     }
 
@@ -119,7 +103,7 @@ public class XMLElement extends XMLNode {
     }
 
     public void removeElements(String name) {
-        LinkedList<XMLElement> elements = new LinkedList<>();
+        ArrayList<XMLElement> elements = new ArrayList<>();
         for (XMLElement e: this.elements)
             if (!e.getName().equals(name))
                 elements.add(e);
@@ -151,7 +135,7 @@ public class XMLElement extends XMLNode {
     }
 
     public void removeAttributes(XMLAttribute attribute){
-        LinkedList<XMLAttribute> attributes = new LinkedList<>();
+        ArrayList<XMLAttribute> attributes = new ArrayList<>();
         for (XMLAttribute a: this.attributes)
             if (a != attribute)
                 attributes.add(attribute);
@@ -164,10 +148,10 @@ public class XMLElement extends XMLNode {
     }
 
     public XMLAttribute getFirstAttribute(){
-        return attributes.element();
+        return attributes.get(0);
     }
 
-    public LinkedList<XMLAttribute> getAttributes(){
+    public ArrayList<XMLAttribute> getAttributes(){
         return attributes;
     }
 
@@ -175,7 +159,7 @@ public class XMLElement extends XMLNode {
         return attributes.size();
     }
 
-    public void setAttributes(LinkedList<XMLAttribute> attributes){
+    public void setAttributes(ArrayList<XMLAttribute> attributes){
         this.attributes = attributes;
     }
 }

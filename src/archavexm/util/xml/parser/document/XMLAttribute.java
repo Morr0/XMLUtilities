@@ -1,7 +1,7 @@
 package archavexm.util.xml.parser.document;
 
 /**
- * This class encapsulates an xml attribute. This should be used within XMLElement.
+ * This class encapsulates an xml attribute.
  * */
 public class XMLAttribute extends XMLNode {
     public XMLAttribute(String name){

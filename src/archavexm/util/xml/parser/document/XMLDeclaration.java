@@ -3,7 +3,7 @@ package archavexm.util.xml.parser.document;
 import archavexm.util.xml.parser.XMLTokens;
 
 /**
- * Encapsulates the declaration statement in the top of the xml document. Should be used within the XMLDocument.
+ * Encapsulates the declaration statement in the top of the xml document.
  * */
 public class XMLDeclaration {
     private String token;

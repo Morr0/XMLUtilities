@@ -5,7 +5,7 @@ abstract class XMLNode {
     protected String name;
     protected String value;
 
-    public XMLNode(String name, String value){
+    protected XMLNode(String name, String value){
         this.name = name;
         this.value = value;
     }
