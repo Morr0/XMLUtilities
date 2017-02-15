@@ -19,6 +19,7 @@ public class XMLTokens {
     public static final String ATTRIBUTE_BEGINNING = "=\"";
     public static final String ATTRIBUTE_END = "\"";
 
-    // Space
+    // MISC
     public static final String SPACE = " ";
+    public static final String EQUAL_SIGN = "=";
 }

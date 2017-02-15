@@ -7,7 +7,7 @@ import archavexm.util.xml.parser.document.XMLElement;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +32,7 @@ public class XMLReader {
         }
         String content = sb.toString();
 
-        if (content.charAt(0) != '<')
+        if (content.charAt(0) != XMLTokens.ELEMENT_BEGINNING_START.charAt(0))
             throw new IncorrectXMLException("The first token of the file should be the opening tag for the declaration or for the root element");
 
         // Takes care of the declaration statement. If there is no declaration it will skip this stage
@@ -46,25 +46,6 @@ public class XMLReader {
         // Makes a smaller string for the elements only
         if (document.hasDeclaration())
             content = content.substring(content.indexOf(">") + 1);
-
-        // If there is an opening tag to check if the document has any tags
-        /*
-        if (content.matches("<.+")){
-            // To check if the number of opening tags is equal to the number of closing ones
-            {
-                int openNum = 0;
-                int closeNum = 0;
-
-                for (char c : content.toCharArray()) {
-                    if (c == '<')
-                        openNum++;
-                    else if (c == '>')
-                        closeNum++;
-                }
-
-                if (openNum != closeNum)
-                    throw new IncorrectXMLException("Some elements are missing from the file.");
-            }*/
 
             // Uses regular expressions to search the entire file for strings starting with < and ending with >
             // This root boolean is for one time use for putting the root element in place
@@ -100,8 +81,11 @@ public class XMLReader {
                         root = false;
                     } else {
                         // If not root element
-                        if (string.trim().endsWith(XMLTokens.ELEMENT_ONE_LINE_END))
-                            document.getRoot().addElement(new XMLElement(getName(string, false), getAttributes(string)));
+                        if (string.trim().endsWith(XMLTokens.ELEMENT_ONE_LINE_END)){
+                            XMLElement elem = new XMLElement(getName(string, false));
+                            elem.setAttributes(getAttributes(string));
+                            document.getRoot().addElement(elem);
+                        }
                         else if (string.endsWith(XMLTokens.ELEMENT_END) && content.contains(XMLTokens.ELEMENT_ENDING_START + name + XMLTokens.ELEMENT_END))
                             document.getRoot().addElement(getElement(content, string, name, false, true));
                         else
@@ -145,15 +129,18 @@ public class XMLReader {
             content = content.substring(content.indexOf(elementString));
         // Builds the string that contains this element and removes the elementContents's content in the content string
         String elementContents = content.substring(0, (oneLine? content.indexOf(endOfElement) - (endOfElement.length() - 2): content.indexOf(endOfElement) + (endOfElement.length())));
-        //if (fromLoad)
-           //content = content.substring(content.indexOf(elementContents));
 
         // Returns the element with it's attributes if it only contains attributes or will scan the entire elements inside the element's string
-        if (oneLine)
-            return new XMLElement(name, (elementContents.contains("=")? getAttributes(elementString): new LinkedList<>()));
-        else {
+        if (oneLine){
+            XMLElement elem = new XMLElement(name);
+            if (elementContents.contains(XMLTokens.EQUAL_SIGN))
+                elem.setAttributes(getAttributes(elementString));
+
+            return elem;
+
+        } else {
             // The extra variable is for when there is no child elements and the element might have a value so if it has it will be stored in extra
-            LinkedList<XMLElement> elements = new LinkedList<>();
+            ArrayList<XMLElement> elements = new ArrayList<>();
             Pattern pattern = Pattern.compile("<.+?(>)");
             Matcher matcher = pattern.matcher(content);
             if (matcher.matches()){
@@ -163,8 +150,14 @@ public class XMLReader {
                 }
             }
 
-            return new XMLElement(name, getValue(elementContents.substring(elementContents.indexOf(XMLTokens.ELEMENT_END) + 1), false)
-                    , (elementContents.contains("=")? getAttributes(elementString): new LinkedList<>()));
+            XMLElement result = new XMLElement(name, getValue(elementContents.substring(elementContents.indexOf(XMLTokens.ELEMENT_END) + 1)
+                    , false));
+            if (elementContents.contains(XMLTokens.EQUAL_SIGN))
+                result.setAttributes(getAttributes(elementString));
+
+            return result;
+            //return new XMLElement(name, getValue(elementContents.substring(elementContents.indexOf(XMLTokens.ELEMENT_END) + 1), false)
+                    //, (elementContents.contains(XMLTokens.EQUAL_SIGN)? getAttributes(elementString): new ArrayList<>()));
         }
     }
 
@@ -174,8 +167,8 @@ public class XMLReader {
     }
 
     // Uses regular expressions to loop through the element looking for attribute string and once it finds string it will add an attribute to the list
-    private static LinkedList<XMLAttribute> getAttributes(String string){
-        LinkedList<XMLAttribute> attributes = new LinkedList<>();
+    private static ArrayList<XMLAttribute> getAttributes(String string){
+        ArrayList<XMLAttribute> attributes = new ArrayList<>();
         Pattern pattern = Pattern.compile(" .+?(\")");
         Matcher matcher = pattern.matcher(string);
         if (matcher.matches()){
@@ -189,19 +182,21 @@ public class XMLReader {
     // Gets the name of an element or an attribute
     private static String getName(String string, boolean attribute){
         if (attribute)
-            return string.substring(0, string.indexOf("="));
+            return string.substring(0, string.indexOf(XMLTokens.EQUAL_SIGN));
         else
-            return string.substring(string.indexOf("<") + 1, (string.contains(XMLTokens.SPACE)? string.indexOf(" "): (string.contains("/")? string.indexOf("/"): string.indexOf(">"))));
+            return string.substring(string.indexOf(XMLTokens.ELEMENT_BEGINNING_START) + 1
+                    , (string.contains(XMLTokens.SPACE)? string.indexOf(XMLTokens.SPACE)
+                            : (string.contains("/")? string.indexOf("/"): string.indexOf(XMLTokens.ELEMENT_END))));
     }
 
     // Returns the value of an attribute
     private static String getValue(String node, boolean attribute){
         if (attribute)
-            return node.substring(node.indexOf("=") + 1, node.indexOf(node.length() - 1));
+            return node.substring(node.indexOf(XMLTokens.EQUAL_SIGN) + 1, node.indexOf(node.length() - 1));
 
         StringBuilder value = new StringBuilder();
         for (char c: node.toCharArray()){
-            if (c != '<')
+            if (c != XMLTokens.ELEMENT_BEGINNING_START.charAt(0))
                 value.append(c);
             else
                 break;
